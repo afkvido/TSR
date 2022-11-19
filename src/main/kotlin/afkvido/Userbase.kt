@@ -1,23 +1,40 @@
 package afkvido
 
-/**
- * IP-Username Map
- */
-var ipUn : HashMap<String, String> = HashMap()
-
 
 /**
  * Wrapper object for UserBase
  */
 object Userbase {
 
-    /**
-     * Collection of IPs and what they correspond to (Admin, Banned, Normal, etc.)
-     */
-    @JvmStatic var source : HashMap<String, KnownIP> = HashMap()
 
-    @JvmStatic fun get (IP : String): KnownIP {
-        return source.getOrDefault(IP, KnownIP.FIRSTTIME)
+    @JvmStatic val onlineArray : ArrayList<String> = ArrayList();
+
+    @JvmStatic fun isOnline (IP : String) : Boolean {
+        return onlineArray.contains(IP);
+    }
+
+    /**
+     * Adds the IP to the userbase OnlineArray
+     */
+    fun String.online () {
+        onlineArray.add(this);
+    }
+
+    /**
+     *
+     */
+    fun String.offline () {
+        onlineArray.remove(this);
+    }
+
+
+    /**
+     * Collection of IPs and what user they correspond to
+     */
+    @JvmStatic val source : HashMap<String, User> = HashMap()
+
+    @JvmStatic fun get (IP : String): User? {
+        return source[IP]
     }
 
 
@@ -25,26 +42,3 @@ object Userbase {
 }
 
 
-enum class KnownIP {
-
-    /**
-     * An Administrator's IP address
-     */
-    ADMINISTRATOR,
-
-    /**
-     * A banned user's IP address
-     */
-    BLACKLIST,
-
-    /**
-     * A normal user's IP address
-     */
-    NORMAL,
-
-    /**
-     * A first timer's IP address
-     */
-    FIRSTTIME,
-
-}

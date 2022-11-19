@@ -55,6 +55,7 @@ object Config {
 
     fun init () {
 
+        // Important - do not delete
         adminIcon += " ";
         botIcon += " ";
 

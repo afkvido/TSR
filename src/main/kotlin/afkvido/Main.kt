@@ -1,5 +1,6 @@
 package afkvido
 
+import afkvido.Userbase.online
 import io.javalin.Javalin
 import io.javalin.http.staticfiles.Location
 
@@ -16,17 +17,26 @@ fun main(args: Array<String>) {
 
         ws.onConnect { connection ->
 
+            /** IP address of user */
             val ip : String = connection.session.remoteAddress.toString();
-            val isAlt = if (Config.altDetection) true /* TODO fix */ else false;
-            val isBanned = Userbase.get(ip) == KnownIP.BLACKLIST;
-            val isAdmin = Userbase.get(ip) == KnownIP.ADMINISTRATOR;
+
+            val user : User = Userbase.get(ip) ?: User(ip, "Name", Rank.FIRSTTIME);
+
+            if (user.rank == Rank.FIRSTTIME) {
+                user.rank = Rank.NORMAL;
+                Userbase.source[ip] = user;
+            }
+
+            val isAlt = if (!Config.altDetection) user.rank == Rank.NORMAL else true;
+            val isBanned = user.rank == Rank.BLACKLIST;
+            val isAdmin = user.rank == Rank.ADMINISTRATOR;
 
             if (isBanned) {
                 connection.send("blacklisted-ip-kick");
                 connection.closeSession();
             }
             else if (isAlt && isAdmin) {
-
+                ip.online();
             }
             else if (isAlt) {
                 connection.send("alt-kick");
